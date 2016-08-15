@@ -1,0 +1,57 @@
+name: lothr
+version: 0.1
+author: Mathieu Corbin
+about: Unit test your infrastructure
+args:
+subcommands:
+    - user:
+        about: test user
+        args:
+            - username:
+                short: u
+                long: username
+                required: true
+                value_name: USERNAME
+                help: name of the user
+            - exists:
+                short: e
+                long: exists
+                required: true
+                value_name: true/false
+                help: user exists or not
+            - uid:
+                long: uid
+                value_name: UID
+                help: uid of the user
+            - gid:
+                long: gid
+                value_name: GID
+                help: gid of the user
+            - group:
+                long: group
+                value_name: GROUP
+                help: group of the user
+            - groups:
+                long: groups
+                value_name: GROUPS
+                use_delimiter: false
+                help: groups of the user
+    - group:
+        about: test group
+        args:
+            - name:
+                short: n
+                long: name
+                required: true
+                value_name: GROUP_NAME
+                help: name of the group
+            - exists:
+                short: e
+                long: exists
+                required: true
+                value_name: true/false
+                help: group exists or not
+            - gid:
+                long: gid
+                value_name: GROUP_GID
+                help: gid of the group
