@@ -679,9 +679,29 @@ fn check_test_success() {
             &test::UnitResult::Error(_) => panic!("Error in test")
         }
     }
+    result = check("root", "true", Some("1"), None, None, None).unwrap();
+    assert_eq!(result.error, 1);
+    assert_eq!(result.success, 1);
+    assert_eq!(result.summary.len(), 2);
+    {
+        let ref summary = result.summary[1];
+        match summary {
+            &test::UnitResult::Success(_) => panic!("Error in test"),
+            &test::UnitResult::Error(ref err) => {
+                assert_eq!(err.expected, "1");
+                assert_eq!(err.actual, "0")
+            }
+        }
+    }
 }
 
-
+#[test]
+fn check_test_error() {
+    let mut result = check("root", "true", Some("hello"), None, None, None);
+    assert!(result.is_err());
+    result = check("root", "hello", Some("0"), None, None, None);
+    assert!(result.is_err());
+}
 
 
 
