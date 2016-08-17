@@ -1,0 +1,30 @@
+# Debian 8 box
+
+$add_sudo_user = <<SCRIPT
+
+sudo yum -y groupinstall 'Development Tools'
+useradd -m -U -s /bin/bash sudo_user
+useradd -m -U -s /bin/bash simple_user
+usermod --password $(echo password | openssl passwd -1 -stdin) simple_user
+usermod --password $(echo password | openssl passwd -1 -stdin) sudo_user
+echo "sudo_user ALL=(ALL:ALL) ALL" >> /etc/sudoers
+
+groupadd group1 -g 2001
+groupadd group2 -g 2002
+groupadd group3 -g 2003
+groupadd group4 -g 2004
+groupadd group5 -g 2005
+useradd -m -g group1 -u 2001 -N -s /bin/bash -G group2,group3 user1
+useradd -m -U -s /bin/bash user2
+
+/rust/install.sh
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.provision "shell", inline: $add_sudo_user
+  config.vm.synced_folder "../../rust-1.10.0-x86_64-unknown-linux-gnu", "/rust", type: "rsync"
+  config.vm.synced_folder "../../../../lothaire/", "/lothaire/src", type: "rsync", rsync__exclude: [".git/", "test", "target"]
+
+end
