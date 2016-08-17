@@ -602,19 +602,18 @@ fn check_secondary_groups_test_success() {
             }
         }
     }
-    // TODO refactor this test
     user = User {
-        name: "mathieu".to_string(),
+        name: "user1".to_string(),
         password: "x".to_string(),
-        uid: 1000,
-        gid: 1000,
-        comment: "mathieu".to_string(),
-        home: "/home/mathieu".to_string(),
+        uid: 2001,
+        gid: 2001,
+        comment: "".to_string(),
+        home: "/home/user1".to_string(),
         init: "/bin/bash".to_string(),
-        group: "mathieu".to_string(),
-        groups: vec!["cdrom".to_string(), "floppy".to_string()]
+        group: "group1".to_string(),
+        groups: vec!["group2".to_string(), "group3".to_string()]
     };
-    check_secondary_groups("cdrom", &user, &mut result);
+    check_secondary_groups("group2", &user, &mut result);
     assert_eq!(result.success, 0);
     assert_eq!(result.error, 2);
     assert_eq!(result.summary.len(), 2);
@@ -623,32 +622,20 @@ fn check_secondary_groups_test_success() {
         match summary {
             &test::UnitResult::Success(_) => panic!("Error in test"),
             &test::UnitResult::Error(ref s) => {
-                assert_eq!(s.expected, "cdrom");
-                assert_eq!(s.actual, "cdrom,floppy")
+                assert_eq!(s.expected, "group2");
+                assert_eq!(s.actual, "group2,group3")
             }
         }
     }
 
-    // TODO refactor this test
-    user = User {
-        name: "mathieu".to_string(),
-        password: "x".to_string(),
-        uid: 1000,
-        gid: 1000,
-        comment: "mathieu".to_string(),
-        home: "/home/mathieu".to_string(),
-        init: "/bin/bash".to_string(),
-        group: "mathieu".to_string(),
-        groups: vec!["cdrom".to_string(), "floppy".to_string()]
-    };
-    check_secondary_groups("cdrom,floppy", &user, &mut result);
+    check_secondary_groups("group2,group3", &user, &mut result);
     assert_eq!(result.success, 1);
     assert_eq!(result.error, 2);
     assert_eq!(result.summary.len(), 3);
     {
         let ref summary = result.summary[2];
         match summary {
-            &test::UnitResult::Success(ref s) => assert_eq!(s.expected, "cdrom,floppy"),
+            &test::UnitResult::Success(ref s) => assert_eq!(s.expected, "group2,group3"),
             &test::UnitResult::Error(_) => panic!("Error in test")
         }
     }

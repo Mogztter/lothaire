@@ -75,7 +75,7 @@ fn get_group_line_from_gid_test_success() {
 fn get_user_secondary_groups_test_success() {
     let mut result = get_user_secondary_groups("root").unwrap();
     assert!(result.is_empty());
-    result = get_user_secondary_groups("mathieu").unwrap();
-    assert_eq!(result.len(), 11);
-    assert!(result.contains(&"lpadmin".to_string()));
+    result = get_user_secondary_groups("user1").unwrap();
+    assert_eq!(result.len(), 2);
+    assert!(result.contains(&"group2".to_string()));
 }
