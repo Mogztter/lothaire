@@ -22,6 +22,13 @@ impl From<num::ParseIntError> for GroupError {
     }
 }
 
+#[derive(Debug)]
+pub struct Group {
+    pub name: String,
+    pub password: String,
+    pub gid: i32
+}
+
 pub fn get_group_line_from_gid(gid: i32) -> Result<Option<Vec<String>>, GroupError> {
     let group_file = try!(fs::File::open("/etc/group"));
     let reader = io::BufReader::new(group_file);
@@ -31,6 +38,23 @@ pub fn get_group_line_from_gid(gid: i32) -> Result<Option<Vec<String>>, GroupErr
         let line_vec: Vec<&str> = line.trim().split(':').collect();
         let line_gid = try!(line_vec[2].parse::<i32>());
         if line_gid == gid {
+            return Ok(Some(line_vec.iter()
+                .map(|v| v.to_string())
+                .collect()));
+        }
+    }
+    Ok(None)
+}
+
+
+pub fn get_group_line_from_name(name: &str) -> Result<Option<Vec<String>>, io::Error> {
+    let group_file = try!(fs::File::open("/etc/group"));
+    let reader = io::BufReader::new(group_file);
+    let lines = reader.lines();
+    for l in lines {
+        let line = try!(l);
+        let line_vec: Vec<&str> = line.trim().split(':').collect();
+        if line_vec[0] == name {
             return Ok(Some(line_vec.iter()
                 .map(|v| v.to_string())
                 .collect()));
@@ -70,7 +94,6 @@ fn get_group_line_from_gid_test_success() {
     assert!(result.is_none());
 }
 
-// TODO refactor this test
 #[test]
 fn get_user_secondary_groups_test_success() {
     let mut result = get_user_secondary_groups("root").unwrap();
@@ -78,4 +101,14 @@ fn get_user_secondary_groups_test_success() {
     result = get_user_secondary_groups("user1").unwrap();
     assert_eq!(result.len(), 2);
     assert!(result.contains(&"group2".to_string()));
+}
+
+
+#[test]
+fn get_group_line_from_name_test_success() {
+    let mut result = get_group_line_from_name("group1").unwrap();
+    assert_eq!(result,
+               Some(vec!["group1".to_string(), "x".to_string(), "2001".to_string(), "".to_string()]));
+    result = get_group_line_from_name("foobargroup").unwrap();
+    assert!(result.is_none());
 }
