@@ -10,6 +10,7 @@ fn main() {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yaml).get_matches();
 
+    // user subcommand
     if let Some(matches) = matches.subcommand_matches("user") {
         let username = matches.value_of("username").unwrap();
         let exists = matches.value_of("exists").unwrap();
@@ -34,6 +35,14 @@ fn main() {
                 std::process::exit(2);
             }
         }
+
+    }
+
+    // group subcommand
+    if let Some(matches) = matches.subcommand_matches("group") {
+        let username = matches.value_of("name").unwrap();
+        let exists = matches.value_of("exists").unwrap();
+        let gid = matches.value_of("gid");
 
     }
 }
