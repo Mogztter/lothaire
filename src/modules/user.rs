@@ -680,6 +680,17 @@ fn check_test_success() {
             }
         }
     }
+    result = check("user1", "true", Some("2001"), None, None, Some("group2,group3")).unwrap();
+    assert_eq!(result.error, 0);
+    assert_eq!(result.success, 3);
+    assert_eq!(result.summary.len(), 3);
+    {
+        let ref summary = result.summary[2];
+        match summary {
+            &test::UnitResult::Success(ref s) => assert_eq!(s.expected, "group2,group3"),
+            &test::UnitResult::Error(_) => panic!("Error in test")
+        }
+    }
 }
 
 #[test]
@@ -689,6 +700,3 @@ fn check_test_error() {
     result = check("root", "hello", Some("0"), None, None, None);
     assert!(result.is_err());
 }
-
-
-
