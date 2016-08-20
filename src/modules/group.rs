@@ -46,6 +46,27 @@ pub fn get_group_line_from_gid(gid: i32) -> Result<Option<Vec<String>>, GroupErr
     Ok(None)
 }
 
+pub fn parse_group_line(line: &Vec<String>) -> Result<Group, num::ParseIntError> {
+    let gid = try!(line[2].parse::<i32>());
+    let name = &line[0];
+    let password = &line[1];
+    Ok(Group {
+        name: name.to_string(),
+        password: password.to_string(),
+        gid: gid
+    })
+}
+
+pub fn get_group(name: &str) -> Result<Option<Group>, GroupError> {
+    let group_line = try!(get_group_line_from_name(name));
+    match group_line {
+        None => Ok(None),
+        Some(l) => {
+            let group = try!(parse_group_line(&l));
+            Ok(Some(group))
+        }
+    }
+}
 
 pub fn get_group_line_from_name(name: &str) -> Result<Option<Vec<String>>, io::Error> {
     let group_file = try!(fs::File::open("/etc/group"));
@@ -112,3 +133,15 @@ fn get_group_line_from_name_test_success() {
     result = get_group_line_from_name("foobargroup").unwrap();
     assert!(result.is_none());
 }
+
+
+#[test]
+fn parse_group_line_test_success() {
+    let line = vec!["group1".to_string(),
+                    "x".to_string(),
+                    "2001".to_string()];
+    let result = parse_group_line(&line);
+    assert!(result.is_ok());
+
+}
+
