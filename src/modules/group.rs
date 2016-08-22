@@ -142,6 +142,35 @@ fn parse_group_line_test_success() {
                     "2001".to_string()];
     let result = parse_group_line(&line);
     assert!(result.is_ok());
+    let group = result.unwrap();
+    assert_eq!(group.name, "group1");
+    assert_eq!(group.password, "x");
+    assert_eq!(group.gid, 2001);
+}
+
+
+#[test]
+fn parse_group_line_test_error() {
+    let line = vec!["group1".to_string(),
+                    "x".to_string(),
+                    "hello".to_string()];
+    let result = parse_group_line(&line);
+    assert!(result.is_err());
 
 }
 
+
+#[test]
+fn get_group_test_success() {
+    let mut group = get_group("group1").unwrap().unwrap();
+    assert_eq!(group.name, "group1");
+    assert_eq!(group.password, "x");
+    assert_eq!(group.gid, 2001);
+    group = get_group("group2").unwrap().unwrap();
+    assert_eq!(group.name, "group2");
+    assert_eq!(group.password, "x");
+    assert_eq!(group.gid, 2002);
+    let group_opt = get_group("notexists").unwrap();
+    assert!(group_opt.is_none())
+
+}
