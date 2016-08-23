@@ -244,10 +244,10 @@ fn parse_user_line(user_line: &Vec<String>) -> Result<User, UserError> {
     let home = &user_line[5];
     let init = &user_line[6];
 
-    let primary_group_line = try!(group::get_group_line_from_gid(gid));
-    let group = match primary_group_line {
+    let group = try!(group::get_group_from_gid(gid));
+    let group_name = match group {
         None => "".to_string(),
-        Some(line) => line[0].to_string()
+        Some(g) => g.name
     };
     let mut secondary_groups = try!(group::get_user_secondary_groups(username));
     secondary_groups.sort();
@@ -259,7 +259,7 @@ fn parse_user_line(user_line: &Vec<String>) -> Result<User, UserError> {
         comment: comment.to_string(),
         home: home.to_string(),
         init: init.to_string(),
-        group: group,
+        group: group_name,
         groups: secondary_groups
     })
 
