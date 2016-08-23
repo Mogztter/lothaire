@@ -57,8 +57,19 @@ pub fn parse_group_line(line: &Vec<String>) -> Result<Group, num::ParseIntError>
     })
 }
 
-pub fn get_group(name: &str) -> Result<Option<Group>, GroupError> {
+pub fn get_group_from_name(name: &str) -> Result<Option<Group>, GroupError> {
     let group_line = try!(get_group_line_from_name(name));
+    match group_line {
+        None => Ok(None),
+        Some(l) => {
+            let group = try!(parse_group_line(&l));
+            Ok(Some(group))
+        }
+    }
+}
+
+pub fn get_group_from_gid(gid: i32) -> Result<Option<Group>, GroupError> {
+    let group_line = try!(get_group_line_from_gid(gid));
     match group_line {
         None => Ok(None),
         Some(l) => {
@@ -161,16 +172,31 @@ fn parse_group_line_test_error() {
 
 
 #[test]
-fn get_group_test_success() {
-    let mut group = get_group("group1").unwrap().unwrap();
+fn get_group_from_name_test_success() {
+    let mut group = get_group_from_name("group1").unwrap().unwrap();
     assert_eq!(group.name, "group1");
     assert_eq!(group.password, "x");
     assert_eq!(group.gid, 2001);
-    group = get_group("group2").unwrap().unwrap();
+    group = get_group_from_name("group2").unwrap().unwrap();
     assert_eq!(group.name, "group2");
     assert_eq!(group.password, "x");
     assert_eq!(group.gid, 2002);
-    let group_opt = get_group("notexists").unwrap();
+    let group_opt = get_group_from_name("notexists").unwrap();
+    assert!(group_opt.is_none())
+
+}
+
+#[test]
+fn get_group_from_gid_test_success() {
+    let mut group = get_group_from_gid(2001).unwrap().unwrap();
+    assert_eq!(group.name, "group1");
+    assert_eq!(group.password, "x");
+    assert_eq!(group.gid, 2001);
+    group = get_group_from_gid(2002).unwrap().unwrap();
+    assert_eq!(group.name, "group2");
+    assert_eq!(group.password, "x");
+    assert_eq!(group.gid, 2002);
+    let group_opt = get_group_from_gid(99999).unwrap();
     assert!(group_opt.is_none())
 
 }
