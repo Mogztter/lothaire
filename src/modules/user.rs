@@ -138,48 +138,6 @@ fn check_secondary_groups(groups: &str, user: &User, result: &mut test::TestResu
         result.error +=1;
         result.summary.push(test::UnitResult::from(error))
     }
-
-}
-
-fn check_exists(user_result: &Option<User>, exists: bool, result: &mut test::TestResult) {
-    match (user_result.is_some(), exists) {
-         (true, false) => { // user exists but not exists wanted
-             result.error += 1;
-             let error = test::UnitError {
-                 test: "user - exists".to_string(),
-                 expected: "false".to_string(),
-                 actual: "true".to_string(),
-                 message: "user exists".to_string()
-             };
-             result.summary.push(test::UnitResult::from(error));
-         },
-        (false, false) => { // user doesnt exists and not exists wanted
-            result.success +=1;
-            let success = test::UnitSuccess {
-                test: "user - exists".to_string(),
-                expected: "false".to_string(),
-            };
-            result.summary.push(test::UnitResult::from(success));
-        },
-        (false, true) => { // user doesnt exists but exists wanted
-            result.error += 1;
-            let error = test::UnitError {
-                test: "user - exists".to_string(),
-                expected: "true".to_string(),
-                actual: "false".to_string(),
-                message: "user doesn't exists".to_string()
-             };
-             result.summary.push(test::UnitResult::from(error));
-        },
-        (true, true) => { // user exists and exists wanted
-            result.success +=1;
-            let success = test::UnitSuccess {
-                test: "user - exists".to_string(),
-                expected: "true".to_string(),
-            };
-            result.summary.push(test::UnitResult::from(success));
-        }
-    }
 }
 
 pub fn check(username: &str,
@@ -197,7 +155,7 @@ pub fn check(username: &str,
     };
     let exists_bool: bool = try!(exists.parse());
     let user_result = try!(get_user(username));
-    check_exists(&user_result, exists_bool, &mut result);
+    test::check_exists(&user_result, exists_bool, &mut result, "user - test".to_string());
     match user_result {
         None => Ok(result),
         Some(user) => {
@@ -470,7 +428,7 @@ fn check_exists_test_success() {
         groups: vec![]
     };
     let user_result = Some(user);
-    check_exists(&user_result, true, &mut result);
+    test::check_exists(&user_result, true, &mut result, "test - user".to_string());
     assert_eq!(result.success, 1);
     assert_eq!(result.error, 0);
     assert_eq!(result.summary.len(), 1);
@@ -483,7 +441,7 @@ fn check_exists_test_success() {
             &test::UnitResult::Error(_) => panic!("Error in test")
         }
     }
-    check_exists(&user_result, false, &mut result);
+    test::check_exists(&user_result, false, &mut result, "test - user".to_string());
     assert_eq!(result.success, 1);
     assert_eq!(result.error, 1);
     assert_eq!(result.summary.len(), 2);
@@ -497,7 +455,7 @@ fn check_exists_test_success() {
             }
         }
     }
-    check_exists(&None, false, &mut result);
+    test::check_exists::<User>(&None, false, &mut result, "test - user".to_string());
     assert_eq!(result.success, 2);
     assert_eq!(result.error, 1);
     assert_eq!(result.summary.len(), 3);
@@ -508,7 +466,7 @@ fn check_exists_test_success() {
             &test::UnitResult::Error(_) => panic!("Error in test")
         }
     }
-    check_exists(&None, true, &mut result);
+    test::check_exists::<User>(&None, true, &mut result, "test - user".to_string());
     assert_eq!(result.success, 2);
     assert_eq!(result.error, 2);
     assert_eq!(result.summary.len(), 4);
