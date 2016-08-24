@@ -37,9 +37,7 @@ pub struct TestResult {
     pub summary: Vec<UnitResult>
 }
 
-
 pub fn check_exists<T>(value: &Option<T>, exists: bool, result: &mut TestResult, test_name: String) {
-
     match (value.is_some(), exists) {
          (true, false) => { // user exists but not exists wanted
              result.error += 1;
@@ -47,7 +45,7 @@ pub fn check_exists<T>(value: &Option<T>, exists: bool, result: &mut TestResult,
                  test: test_name,
                  expected: "false".to_string(),
                  actual: "true".to_string(),
-                 message: "user exists".to_string()
+                 message: "the element exists".to_string()
              };
              result.summary.push(UnitResult::from(error));
          },
@@ -65,7 +63,7 @@ pub fn check_exists<T>(value: &Option<T>, exists: bool, result: &mut TestResult,
                 test: test_name,
                 expected: "true".to_string(),
                 actual: "false".to_string(),
-                message: "user doesn't exists".to_string()
+                message: "the element doesn't exists".to_string()
              };
              result.summary.push(UnitResult::from(error));
         },
