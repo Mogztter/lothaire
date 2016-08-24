@@ -155,7 +155,7 @@ pub fn check(username: &str,
     };
     let exists_bool: bool = try!(exists.parse());
     let user_result = try!(get_user(username));
-    test::check_exists(&user_result, exists_bool, &mut result, "user - test".to_string());
+    test::check_exists(&user_result, exists_bool, &mut result, "user - exists".to_string());
     match user_result {
         None => Ok(result),
         Some(user) => {
