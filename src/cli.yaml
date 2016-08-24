@@ -7,14 +7,12 @@ subcommands:
     - user:
         about: test user
         args:
-            - username:
-                short: u
-                long: username
+            - name:
+                long: name
                 required: true
                 value_name: USERNAME
                 help: name of the user
             - exists:
-                short: e
                 long: exists
                 required: true
                 value_name: true/false
@@ -40,13 +38,11 @@ subcommands:
         about: test group
         args:
             - name:
-                short: n
                 long: name
                 required: true
                 value_name: GROUP_NAME
                 help: name of the group
             - exists:
-                short: e
                 long: exists
                 required: true
                 value_name: true/false

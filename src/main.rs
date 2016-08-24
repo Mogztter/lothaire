@@ -4,6 +4,7 @@ use clap::App;
 pub mod modules;
 pub mod util;
 use modules::user;
+use modules::group;
 
 fn main() {
 
@@ -12,7 +13,7 @@ fn main() {
 
     // user subcommand
     if let Some(matches) = matches.subcommand_matches("user") {
-        let username = matches.value_of("username").unwrap();
+        let username = matches.value_of("name").unwrap();
         let exists = matches.value_of("exists").unwrap();
         let uid = matches.value_of("uid");
         let gid = matches.value_of("gid");
@@ -22,7 +23,7 @@ fn main() {
         match test_result {
             Ok(result) => {
                 if result.error == 0 {
-                    println!("All tests uccess : {:?}", result);
+                    println!("All tests success : {:?}", result);
                     std::process::exit(0);
                 }
                 else {
@@ -40,10 +41,26 @@ fn main() {
 
     // group subcommand
     if let Some(matches) = matches.subcommand_matches("group") {
-        let username = matches.value_of("name").unwrap();
+        let name = matches.value_of("name").unwrap();
         let exists = matches.value_of("exists").unwrap();
         let gid = matches.value_of("gid");
-
+        let test_result = group::check(name, exists, gid);
+        match test_result {
+            Ok(result) => {
+                if result.error == 0 {
+                    println!("All tests success : {:?}", result);
+                    std::process::exit(0);
+                }
+                else {
+                    println!("Error during tests : {:?}", result);
+                    std::process::exit(1);
+                }
+            }
+            Err(error) => {
+                println!("System error : {:?}", error);
+                std::process::exit(2);
+            }
+        }
     }
 }
 
