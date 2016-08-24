@@ -88,7 +88,7 @@ fn check_gid(gid: i32, user: &User, result: &mut test::TestResult) {
             test: test_name.to_string(),
             expected: format!("{}", gid),
             actual: format!("{}", user.gid),
-            message: "incorrect uid".to_string(),
+            message: "incorrect gid".to_string(),
         };
         result.error +=1;
         result.summary.push(test::UnitResult::from(error))
