@@ -3,9 +3,9 @@ extern crate clap;
 use clap::App;
 pub mod modules;
 pub mod util;
+pub mod distrib;
 use modules::user;
 use modules::group;
-
 fn main() {
 
     let yaml = load_yaml!("cli.yaml");
