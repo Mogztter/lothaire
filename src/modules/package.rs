@@ -16,16 +16,16 @@ pub fn check_deb(package: &str, version: Option<&str>, installed: bool) -> Resul
     let out_lines: Vec<&str> = out.split("\n").collect();
     for line in out_lines {
         let line_array: Vec<&str> = line.split("---").collect();
-        if line_array[0] == "install ok installed" {
-            if version.is_some() {
+        if line_array[0] == "install ok installed" { // package installed
+            if version.is_some() { // version needed
                 if line_array.len() == 2 {
                     let version = version.unwrap();
-                    if version == line_array[1] {
+                    if version == line_array[1] { // version ok
                         found = true;
                         break;
                     }
                 }
-            }
+            } // version not ok
             else {
                 found = true;
                 break;
@@ -56,9 +56,63 @@ pub fn check_deb(package: &str, version: Option<&str>, installed: bool) -> Resul
     }
 }
 
+pub fn check_rpm(package: &str, version: Option<&str>, installed: bool) -> Result<test::UnitResult, io::Error> {
+    let test_name = "package";
+    let command_result = try!(Command::new("rpm")
+        .arg("-q")
+        .arg("--queryformat")
+        .arg("%{version}")
+        .arg(package)
+        .output());
+    let out = String::from_utf8_lossy(&command_result.stdout);
+    let mut found = true;
+    if version.is_some() {
+        let version = version.unwrap();
+        if out != version {
+            found = false;
+        }
+    }
+    let expected_string = if version.is_some() {
+        format!("name: {}, version: {}, installed: {}", package, version.unwrap(), installed)
+    }
+    else {
+        format!("name: {}, installed: {}", package, installed)
+    };
+    if found == installed {
+        let success = test::UnitSuccess {
+            test: test_name.to_string(),
+            expected: expected_string
+        };
+        Ok(test::UnitResult::from(success))
+    }
+    else {
+        let error = test::UnitError {
+            test: test_name.to_string(),
+            expected: expected_string,
+            actual: format!("package found: {}", found),
+            message: "Package test fail".to_string(),
+        };
+        Ok(test::UnitResult::from(error))
+    }
+}
+
+#[test]
+fn check_rpm_test_success() {
+    if distrib::get_package_manager() == "rpm" {
+        let openssl_version = "1.0.1e";
+        let package_name = "openssl";
+        // package exists and version ok
+        let result = check_rpm(package_name, Some(openssl_version), true).unwrap();
+        match result {
+            test::UnitResult::Success(ref s) => assert_eq!(s.expected, format!("name: {}, version: {}, installed: {}", package_name, openssl_version, true)),
+            test::UnitResult::Error(_) => panic!("error in test")
+        }
+    }
+}
+
 #[test]
 fn check_deb_test_success() {
-    if distrib::get_distrib() == "deb" {
+    if distrib::get_package_manager() == "deb" {
         let openssl_version = "1.0.1t-1+deb8u2";
         let mut package_name = "openssl";
         // package exists and version ok
@@ -109,6 +163,4 @@ fn check_deb_test_success() {
         }
     }
 }
-
-
 
