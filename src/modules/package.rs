@@ -102,6 +102,10 @@ pub fn check_rpm(package: &str, version: Option<&str>, installed: bool) -> Resul
     }
 }
 
+
+// TESTS
+
+
 #[test]
 fn check_rpm_test_success() {
     if distrib::get_package_manager() == "rpm" {
