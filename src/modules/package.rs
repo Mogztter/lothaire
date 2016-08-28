@@ -61,15 +61,21 @@ pub fn check_rpm(package: &str, version: Option<&str>, installed: bool) -> Resul
     let command_result = try!(Command::new("rpm")
         .arg("-q")
         .arg("--queryformat")
-        .arg("%{version}")
+        .arg("%{name}---%{version}")
         .arg(package)
         .output());
     let out = String::from_utf8_lossy(&command_result.stdout);
-    let mut found = true;
+    let out_array: Vec<&str> = out.split("---").collect();
+    let mut found = false;
     if version.is_some() {
         let version = version.unwrap();
-        if out != version {
-            found = false;
+        if out == format!("{}---{}", package, version) {
+            found = true;
+        }
+    }
+    else {
+        if out_array[0] == package {
+            found = true;
         }
     }
     let expected_string = if version.is_some() {
@@ -100,12 +106,52 @@ pub fn check_rpm(package: &str, version: Option<&str>, installed: bool) -> Resul
 fn check_rpm_test_success() {
     if distrib::get_package_manager() == "rpm" {
         let openssl_version = "1.0.1e";
-        let package_name = "openssl";
+        let mut package_name = "openssl";
         // package exists and version ok
-        let result = check_rpm(package_name, Some(openssl_version), true).unwrap();
+        let  mut result = check_rpm(package_name, Some(openssl_version), true).unwrap();
         match result {
             test::UnitResult::Success(ref s) => assert_eq!(s.expected, format!("name: {}, version: {}, installed: {}", package_name, openssl_version, true)),
             test::UnitResult::Error(_) => panic!("error in test")
+        }
+        // package exists and no version
+        result = check_rpm(package_name, None, true).unwrap();
+        match result {
+            test::UnitResult::Success(ref s) => assert_eq!(s.expected, format!("name: {}, installed: {}", package_name, true)),
+            test::UnitResult::Error(_) => panic!("error in test")
+        }
+        // package exists but incorrect version
+        result = check_rpm(package_name, Some("1.0.2"), true).unwrap();
+        match result {
+            test::UnitResult::Error(ref s) => {
+                assert_eq!(s.expected, format!("name: {}, version: {}, installed: {}", package_name, "1.0.2", true));
+                assert_eq!(s.actual, "package found: false");
+            },
+            test::UnitResult::Success(_) => panic!("error in test")
+        }
+        // package dont exists and no version and test not installed
+        package_name = "notexists";
+        result = check_rpm(package_name, None, false).unwrap();
+        match result {
+            test::UnitResult::Success(ref s) => assert_eq!(s.expected, format!("name: {}, installed: {}", package_name, false)),
+            test::UnitResult::Error(_) => panic!("error in test")
+        }
+        // package dont exists and no version and test installed
+        result = check_rpm(package_name, None, true).unwrap();
+        match result {
+            test::UnitResult::Error(ref e) => {
+                assert_eq!(e.expected, format!("name: {}, installed: {}", package_name, true));
+                assert_eq!(e.actual, format!("package found: {}", false));
+            }
+            test::UnitResult::Success(_) => panic!("error in test")
+        }
+        // package not exists and incorrect version
+        result = check_rpm(package_name, Some("1"), true).unwrap();
+        match result {
+            test::UnitResult::Error(ref e) => {
+                assert_eq!(e.expected, format!("name: {}, version: {}, installed: {}", package_name, "1", true));
+                assert_eq!(e.actual, format!("package found: {}", false));
+            }
+            test::UnitResult::Success(_) => panic!("error in test")
         }
     }
 }
