@@ -51,3 +51,20 @@ subcommands:
                 long: gid
                 value_name: GROUP_GID
                 help: gid of the group
+    - package:
+        about: test package
+        args:
+            - name:
+                long: name
+                required: true
+                value_name: PACKAGE_NAME
+                help: name of the package
+            - installed:
+                long: installed
+                required: true
+                value_name: true/false
+                help: package installed or not
+            - version:
+                long: version
+                value_name: VERSION
+                help: version of the package
