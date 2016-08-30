@@ -77,3 +77,24 @@ pub fn check_exists<T>(value: &Option<T>, exists: bool, result: &mut TestResult,
         }
     }
 }
+
+pub fn update_test_result(condition: bool, test_name: &str, expected: &str, actual: &str, message: &str, result: &mut TestResult) {
+    if condition {
+        let success = UnitSuccess {
+            test: test_name.to_string(),
+            expected: expected.to_string(),
+        };
+        result.success +=1;
+        result.summary.push(UnitResult::from(success))
+    }
+    else {
+        let error = UnitError {
+            test: test_name.to_string(),
+            expected: expected.to_string(),
+            actual: actual.to_string(),
+            message: message.to_string(),
+        };
+        result.error +=1;
+        result.summary.push(UnitResult::from(error))
+    }
+}
