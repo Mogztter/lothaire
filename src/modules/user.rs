@@ -55,23 +55,11 @@ impl From<num::ParseIntError> for UserError {
 
 fn check_uid(uid: i32, user: &User, result: &mut test::TestResult) {
     let test_name = "user - uid";
-    if user.uid == uid {
-        let success = test::UnitSuccess {
-            test: test_name.to_string(),
-            expected: format!("{}", uid),
-        };
-        result.success +=1;
-        result.summary.push(test::UnitResult::from(success))
-    } else {
-        let error = test::UnitError {
-            test: test_name.to_string(),
-            expected: format!("{}", uid),
-            actual: format!("{}", user.uid),
-            message: "incorrect uid".to_string(),
-        };
-        result.error +=1;
-        result.summary.push(test::UnitResult::from(error))
-    }
+    let condition = user.uid == uid;
+    let expected = format!("{}", uid);
+    let actual = format!("{}", user.uid);
+    let error_message = "incorrect uid".to_string();
+    test::update_test_result(condition, test_name, &expected, &actual, &error_message, result);
 }
 
 fn check_gid(gid: i32, user: &User, result: &mut test::TestResult) {
