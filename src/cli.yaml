@@ -68,3 +68,33 @@ subcommands:
                 long: version
                 value_name: VERSION
                 help: version of the package
+    - file:
+        about: test package
+        args:
+            - path:
+                long: path
+                required: true
+                value_name: PATH
+                help: path of the file
+            - type:
+                long: type
+                required: true
+                value_name: file/dir
+                help: is a file or a directory
+            - exists:
+                long: exists
+                required: true
+                value_name: true/false
+                help: package installed or not
+            - perm:
+                long: perm
+                value_name: PERMISSIONS
+                help: permissions of the file (XXXX)
+            - owner:
+                long: owner
+                value_name: OWNER
+                help: owner of the file
+            - group:
+                long: group
+                value_name: GROUP
+                help: group of the file
